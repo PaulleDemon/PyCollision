@@ -1,0 +1,1 @@
+from pycollision.pycollision import Collision
