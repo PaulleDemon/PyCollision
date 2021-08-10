@@ -1,78 +1,78 @@
-from numpy.lib import tracemalloc_domain
 import pygame
 import numpy as np
 from PIL import Image
-from typing import Tuple, Union, List
-from itertools import zip_longest
-
+from typing import Tuple
 import random
 
 
 class Collision:
 
-    def __init__(self, img_path: str, pos: list, split: list = (1, 1), optimize=False) -> None:
+    def __init__(self, img_path: str,  split: Tuple[int, int] = (1, 1), optimize=False) -> None:
         
         if not all(split):
             raise ("Please enter a split values greater than 0")
-        optimize = optimize
-        self._pos = pos
-        self._temp_pos = pos
-        self._split = list(split)
-        self.image = self._convertToArray(img_path)
+  
+        _optimize = optimize
+        self.image = self._convertImageToArray(img_path)
 
         self.collision_points = np.array(list(self.divide(split)))
-        temp = self.collision_points[:1][0].flatten()
-        print("Collision points: \n", self.collision_points)
-        # print("DIM: ", temp.shape, temp, type(temp[0]))
-        if optimize:
-            for index in range(1, len(self.collision_points)-1):
-                cur_point = self.collision_points[index][2: -2]
-                pre_point = self.collision_points[index-1]
 
-                first, last = self.collision_points[index][:2],  self.collision_points[index][-2:]
-                print("Cur: \n", cur_point, "\nPre: \n", pre_point, index)
-                point_temp = []
-                
-                for x in cur_point:
-                    print("X: ", x)
-                    exists = False
-                    for y in pre_point:
-                        print("y: ", y)
-                        print("Not EQUALS: ", x[0] != y[0], x[2] != y[2])
-                        if x[0] == y[0] and x[2] == y[2]:
-                            exists = True
-                            break
-
-                    if not exists:
-                        point_temp.append(x)
-                            # break
-                            
+        if _optimize:
+            self._optimize()
         
-                    print("\n---BREAK---\n")
-                print("TEMP POINTS : ", point_temp, last.tolist(), first.tolist())
-                point = np.array(point_temp)
-                # print("POint: ", cur_point[0], cur_point[-1])
-                point = np.concatenate((*first, *point_temp, *last))
-                temp = np.concatenate((temp, point))
-                print("Tep: \n", temp)
-   
-            temp = np.concatenate((temp, self.collision_points[-1:][0].ravel(), self.collision_points[-2:][0].ravel()))
-
-            self.collision_points = temp
-
         else:
             self.collision_points = np.concatenate(self.collision_points).ravel()
 
         self.collision_points = np.reshape(self.collision_points, (-1, 4))
-        # print("Final:", self.collision_points, self.collision_points.ndim)
 
-    def _convertToArray(self, image):
+
+    def _optimize(self):
+        """ removes inner points of the rectangle by checking the points above and below """
+
+        temp = self.collision_points[:1][0].ravel()
+        
+        for index in range(1, len(self.collision_points)-1):
+            pre_point = self.collision_points[index-1]
+            cur_point = self.collision_points[index]
+            post_point = self.collision_points[index + 1]
+
+            point_temp = []
+            for x in cur_point[1: -1]:
+                pre_exists = False
+                post_exists = False
+
+                for y in pre_point:
+                    if x[0] == y[0] and x[2] == y[2]:
+                        pre_exists = True
+                        break
+                
+                for z in post_point:
+                    if x[0] == z[0] and x[2] == z[2]:
+                        post_exists = True
+                        break
+
+                if not pre_exists or not post_exists:
+                    point_temp.append(x)
+                        
+
+            point = np.array(point_temp)
+            point = np.concatenate((cur_point[0], *point_temp, cur_point[-1]))
+
+            temp = np.concatenate((temp, point))
+
+        temp = np.concatenate((temp, self.collision_points[-1:][0].ravel()))
+        self.collision_points = temp
+
+        
+    def _convertImageToArray(self, image):
         img = Image.open(image)
         img.load()
 
         return np.asarray(img)
 
     def divide(self, split: Tuple[int, int] = (1, 1)):
+
+        """ creates rectanglular points over non-transparent parts """
 
         rows = self.image.shape[0] // split[0]
         cols = self.image.shape[1] // split[1]
@@ -98,25 +98,51 @@ class Collision:
                 temp_lst = np.reshape(temp_lst, (-1, 4))
                 yield temp_lst[1:]
 
+    def check_collision(self, pos_x = None, pos_y = None, offset=0) -> bool:
+        """ returns True if there is any collision"""
 
+        pos_x_in, pos_y_in = False, False
+        for x in self.collision_points:  
 
+            pos_x_in, pos_y_in = False, False
+            
+            if pos_x and x[0]-offset <= pos_x <= x[2]+offset:
+                pos_x_in = True
+            
+            if pos_y and x[1]-offset < pos_y < x[3]+offset:
+                pos_y_in = True
+
+            if pos_x and pos_y is None:
+                return pos_x_in, None
+            
+            elif pos_y and pos_x is None:
+                return pos_y_in, None
+
+            elif pos_x and pos_y and all((pos_x_in, pos_y_in)):
+                return pos_x_in, pos_y_in
+
+        return False, False
+
+    def smart_check(self,  pos_x = None, pos_y = None, offset=0):
+        pass
 
 pygame.init()
 
-# collision_check = Collision(r"assets\sample.png", [0, 0], [15, 15], optimize=False)
-# collision_check = Collision(r"assets\sample.png", [0, 0], [15, 15], optimize=False)
-collision_check = Collision(r"assets\sample.png", [0, 0], [15, 15], optimize=True)
 screen = pygame.display.set_mode((1000, 800))
 
 player = pygame.image.load(r"assets\playerTank.png").convert() #_alpha()
+player_rect = player.get_rect()
 
+collision_check = Collision(r"assets\sample.png", (50, 50), optimize=True)
 collision_object = pygame.image.load(r"assets\sample.png").convert_alpha()
 
 colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in range(len            (collision_check.collision_points))]
 
 running = True
-speed = 2
+speed = 1.5
 pos_x, pos_y = (10, 10)
+
+offset = 0
 
 while running:
 
@@ -128,19 +154,30 @@ while running:
             running = False
     
     key_press = pygame.key.get_pressed()
-    # colliding =  collision_check.check_collision([pos_x, pos_y])
-    # print(colliding)
+    # colliding =  collision_check.check_collision(pos_x, pos_y, offset=offset)
 
-    if key_press[pygame.K_a]:
+    topLeft = all(collision_check.check_collision(pos_x, pos_y, offset=offset))
+    topRight = all(collision_check.check_collision(pos_x+player_rect.width, pos_y, offset=offset))
+    bottomRight = all(collision_check.check_collision(pos_x+player_rect.width, pos_y+player_rect.height, offset=offset))
+    bottomLeft = all(collision_check.check_collision(pos_x, pos_y+player_rect.height, offset=offset))
+
+    # print("ToP LEft: ", topLeft)
+    print("ToP LEft: ", any([topLeft, bottomLeft]))
+    print("top Right: ", topRight)
+    print("Bottom Right: ", bottomRight)
+    print("Bottom left: ", bottomLeft)
+
+
+    if key_press[pygame.K_a] and not any([topLeft, bottomLeft]):#all([x, y]):
         pos_x -= speed
 
-    if key_press[pygame.K_w]:
+    if key_press[pygame.K_w] and not any([topLeft, topRight]): #all([x, y]):
         pos_y -= speed
     
-    if key_press[pygame.K_d]:
+    if key_press[pygame.K_d] and not any([topRight, bottomRight]): #all([x1, y1]):
         pos_x += speed
     
-    if key_press[pygame.K_s]:
+    if key_press[pygame.K_s] and not any([bottomRight, bottomLeft]): #all([x1, y1]): 
         pos_y += speed
     
     screen.blit(collision_object, (0, 0))
