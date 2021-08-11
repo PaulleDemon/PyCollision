@@ -16,11 +16,9 @@ colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255
           range(len(collision_check.collision_points()))]
 
 running = True
-speed = 1
+speed = 0.3
 pos_x, pos_y = (10, 10)
 
-bgx, bgy = (0, 0)
-bg_speed = 0.05
 
 offset = 0
 
@@ -37,14 +35,10 @@ while running:
 
     key_press = pygame.key.get_pressed()
 
-    topLeft, _ = collision_check.smart_check((pos_x, pos_y), coll_pos=(bgx, bgy), offset=offset)
-    topRight, _ = collision_check.smart_check((pos_x + player_rect.width, pos_y), coll_pos=(bgx, bgy),offset=offset)
-    bottomRight, _ = collision_check.smart_check((pos_x + player_rect.width, pos_y + player_rect.height),
-                                                 coll_pos=(bgx, bgy), offset=offset)
-    bottomLeft, _ = collision_check.smart_check((pos_x, pos_y + player_rect.height),
-                                                coll_pos=(bgx, bgy), offset=offset)
-
-    if any((topLeft, bottomLeft, bottomRight, topRight)):
+    rect = (player_rect.x, player_rect.y, player_rect.x+player_rect.width, player_rect.y+player_rect.height)
+    inside, pos = collision_check.check_rect_collision(rect)
+    # print(inside, pos)
+    if inside:
         screen.fill((255, 16, 8))
         screen.blit(coll_font.render("Collision", True, (255, 255, 255)), (50, 50))
 
@@ -60,19 +54,10 @@ while running:
     if key_press[pygame.K_s]:
         pos_y += speed
 
-    screen.blit(collision_object, (bgx, bgy))
-
-    bgx += bg_speed
-    bgy += bg_speed
-
-    if bgx >= 400:
-        bg_speed = -0.05
-
-    if bgx <= 50:
-        bg_speed = 0.05
+    screen.blit(collision_object, (0, 0))
 
     for color, x in zip(colors, collision_check.collision_points()):
-        x = (x[0]+bgx, x[1]+bgy, x[2] - x[0], x[3] - x[1])
+        x = (x[0], x[1], x[2] - x[0], x[3] - x[1])
         pygame.draw.rect(screen, color, pygame.Rect(x), width=3)
 
     player_rect = pygame.Rect(pos_x, pos_y, 50, 50)

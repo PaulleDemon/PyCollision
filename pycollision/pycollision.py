@@ -66,7 +66,7 @@ class Collision:
                 if not pre_exists or not post_exists:
                     point_temp.append(x)
 
-            point = np.array(point_temp)
+            # point = np.array(point_temp)
             point = np.concatenate((cur_point[0], *point_temp, cur_point[-1]))
 
             temp = np.concatenate((temp, point))
@@ -103,51 +103,74 @@ class Collision:
                 temp_lst = np.reshape(temp_lst, (-1, 4))
                 yield temp_lst[1:]
 
-    def check_collision(self, pos_x=None, pos_y=None, coll_pos: Tuple[int, int] = (0, 0),
+    def check_collision(self, pos_x=None, pos_y=None, coll_pos: Tuple[int, int] = None,
                         offset=0) -> Tuple[bool, Tuple[int, int, int, int]]:
-
         """ returns True if there is any collision"""
-        self.img_x, self.img_y = coll_pos
-        if not any((pos_x, pos_y)):
-            raise ValueError("Must specify at least one position")
 
-        for x in self._collision_points:
+        if coll_pos is not None:
+            self.setImgPos(*coll_pos)
 
-            pos_x_in, pos_y_in = False, False
+        cond = np.argmax((self._collision_points[:, 0] + self.img_x - offset <= pos_x) &
+                         (pos_x <= self._collision_points[:, 2] + self.img_x + offset) &
+                         (self._collision_points[:, 1] + self.img_y - offset <= pos_y) &
+                         (pos_y <= self._collision_points[:, 3] + self.img_y + offset))
+        rect = self._collision_points[cond]
 
-            if pos_x and self.img_x + x[0] - offset <= pos_x <= self.img_x + x[2] + offset:
-                pos_x_in = True
-
-            if pos_y and self.img_y + x[1] - offset < pos_y < self.img_y + x[3] + offset:
-                pos_y_in = True
-
-            if pos_x and pos_y is None:
-                return pos_x_in, x
-
-            elif pos_y and pos_x is None:
-                return pos_y_in, x
-
-            elif pos_x and pos_y and all((pos_x_in, pos_y_in)):
-                return True, x
+        if np.any(cond):
+            return True, rect
 
         return False, None
 
-    def smart_check(self, pos: Tuple[int, int], coll_pos: Tuple[int, int] = (0, 0), offset=0):
+    def smart_check(self, pos: Tuple[int, int], coll_pos: Tuple[int, int] = None, offset=0):
         """ First checks if the object is inside the outer rectangle then calls the check_collision"""
 
+        if coll_pos is not None:
+            self.setImgPos(*coll_pos)
+
         pos_x, pos_y = pos
-        cx, cy = coll_pos
+
         if 0 + self.img_x < pos_x < self.width + self.img_x and 0 + self.img_y < pos_y < self.height + self.img_y:
-            return self.check_collision(pos_x, pos_y, coll_pos=coll_pos, offset=offset)
+            return self.check_collision(pos_x, pos_y, offset=offset)
 
         return False, None
 
-    def check_rect(self, rect: Tuple[int, int, int, int], offset=0) -> Tuple:
+    def check_rect_inside(self, rect: Tuple[int, int, int, int], coll_pos: Tuple[int, int] = None, offset=0) -> Tuple:
+
+        if coll_pos is not None:
+            self.setImgPos(*coll_pos)
 
         check1, pos1 = self.smart_check(rect[:2], offset=offset)
         check2, pos2 = self.smart_check(rect[2:], offset=offset)
 
-        return (check1, pos1), (check2, pos2)
+        return check1 or check2, (pos1, pos2)
+
+    def check_rect_collision(self, rect: Tuple[int, int, int, int], coll_pos: Tuple[int, int] = None,
+                             offset=0) -> Tuple:
+
+        if coll_pos is not None:
+            self.setImgPos(*coll_pos)
+
+        pos_x, pos_y, pos_x1, pos_y1 = rect
+
+        # rectangle1 overlapping with rectangle2
+        cond = np.argmax((self._collision_points[:, 0] + self.img_x - offset >= pos_x) &
+                         (self._collision_points[:, 1] + self.img_y - offset >= pos_y) &
+                         (self._collision_points[:, 0] + self.img_x + offset <= pos_x1) &
+                         (self._collision_points[:, 1] + self.img_y + offset <= pos_y1))
+
+        cond2 = np.argmax((self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
+                         (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
+                         (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
+                         (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
+
+        rect = self._collision_points[cond]
+        # rect2 = self._collision_points[cond2]
+        print(cond2)
+        # print("Rect: ", rect)
+        if np.any(cond) or np.any(cond2):
+            return True, rect
+
+        return False, None
 
     def collision_points(self) -> np.ndarray:
         """ returns the collision points"""

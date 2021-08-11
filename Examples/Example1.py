@@ -6,8 +6,7 @@ pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
 
-player = pygame.image.load(r"Examples/TestImages/playerTank.png").convert()  # _alpha()
-player_rect = player.get_rect()
+player_rect = pygame.Rect(0, 0, 50, 50)
 
 collision_check = Collision(r"Examples/TestImages/sample.png", (15, 15), optimize=True)
 collision_object = pygame.image.load(r"Examples/TestImages/sample.png").convert_alpha()
@@ -37,16 +36,16 @@ while running:
     bottomRight, _ = collision_check.smart_check((pos_x + player_rect.width, pos_y + player_rect.height), offset=offset)
     bottomLeft, _ = collision_check.smart_check((pos_x, pos_y + player_rect.height), offset=offset)
 
-    if key_press[pygame.K_a] and not any((topLeft, bottomLeft)):
+    if key_press[pygame.K_a] and not any((topLeft, bottomLeft)) and pos_x >= 0:
         pos_x -= speed
 
-    if key_press[pygame.K_w] and not any((topLeft, topRight)):
+    if key_press[pygame.K_w] and not any((topLeft, topRight)) and pos_y >= 0:
         pos_y -= speed
 
-    if key_press[pygame.K_d] and not any((bottomRight, topRight)):
+    if key_press[pygame.K_d] and not any((bottomRight, topRight)) and pos_x <= 950:
         pos_x += speed
 
-    if key_press[pygame.K_s] and not any((bottomLeft, bottomRight)):
+    if key_press[pygame.K_s] and not any((bottomLeft, bottomRight)) and pos_y <= 750:
         pos_y += speed
 
     screen.blit(collision_object, (0, 0))
@@ -55,6 +54,7 @@ while running:
         x = (x[0], x[1], x[2] - x[0], x[3] - x[1])
         pygame.draw.rect(screen, color, pygame.Rect(x), width=3)
 
-    screen.blit(player, (pos_x, pos_y))
+    player_rect = pygame.Rect(pos_x, pos_y, 50, 50)
+    pygame.draw.rect(screen, (0, 0, 0), player_rect)
 
     pygame.display.update()
