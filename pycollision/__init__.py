@@ -1,1 +1,1 @@
-from pycollision.pycollision import Collision
+from pycollision.pycollision import Collision, GroupCollision
