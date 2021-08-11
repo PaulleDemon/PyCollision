@@ -8,8 +8,8 @@ screen = pygame.display.set_mode((1000, 800))
 
 player_rect = pygame.Rect(0, 0, 50, 50)
 
-collision_check = Collision(r"Examples/TestImages/sample.png", (15, 15), optimize=True)
-collision_object = pygame.image.load(r"Examples/TestImages/sample.png").convert_alpha()
+collision_check = Collision(r"TestImages/sample.png", (15, 15), optimize=True)
+collision_object = pygame.image.load(r"TestImages/sample.png").convert_alpha()
 
 colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
           range(len(collision_check.collision_points()))]

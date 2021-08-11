@@ -110,13 +110,14 @@ class Collision:
         if coll_pos is not None:
             self.setImgPos(*coll_pos)
 
-        cond = np.argmax((self._collision_points[:, 0] + self.img_x - offset <= pos_x) &
-                         (pos_x <= self._collision_points[:, 2] + self.img_x + offset) &
-                         (self._collision_points[:, 1] + self.img_y - offset <= pos_y) &
-                         (pos_y <= self._collision_points[:, 3] + self.img_y + offset))
+        cond = np.where((self._collision_points[:, 0] + self.img_x - offset <= pos_x) &
+                        (pos_x <= self._collision_points[:, 2] + self.img_x + offset) &
+                        (self._collision_points[:, 1] + self.img_y - offset <= pos_y) &
+                        (pos_y <= self._collision_points[:, 3] + self.img_y + offset))
+
         rect = self._collision_points[cond]
 
-        if np.any(cond):
+        if cond and cond[0].size != 0:
             return True, rect
 
         return False, None
@@ -150,25 +151,31 @@ class Collision:
         if coll_pos is not None:
             self.setImgPos(*coll_pos)
 
+        rect = list(rect)
+        topLeft, bottomRight = rect[:2], rect[2:]
+        topRight, bottomLeft = (rect[2], rect[1]), (rect[0], rect[3])
+
+        check, pos = self.smart_check(topLeft, offset=offset)
+        check2, pos2 = self.smart_check(topRight, offset=offset)
+        check3, pos3 = self.smart_check(bottomRight, offset=offset)
+        check4, pos4 = self.smart_check(bottomLeft, offset=offset)
+
         pos_x, pos_y, pos_x1, pos_y1 = rect
 
-        # rectangle1 overlapping with rectangle2
         cond = np.argmax((self._collision_points[:, 0] + self.img_x - offset >= pos_x) &
                          (self._collision_points[:, 1] + self.img_y - offset >= pos_y) &
                          (self._collision_points[:, 0] + self.img_x + offset <= pos_x1) &
                          (self._collision_points[:, 1] + self.img_y + offset <= pos_y1))
 
         cond2 = np.argmax((self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
-                         (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
-                         (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
-                         (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
+                          (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
+                          (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
+                          (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
 
-        rect = self._collision_points[cond]
-        # rect2 = self._collision_points[cond2]
-        print(cond2)
-        # print("Rect: ", rect)
-        if np.any(cond) or np.any(cond2):
-            return True, rect
+        # print((check, check2, check3, check4), cond, cond2)
+
+        if any((check, check2, check3, check4)) or np.any(cond) or np.any(cond2):
+            return True, None  # pos or pos2 or pos3 or pos4
 
         return False, None
 
