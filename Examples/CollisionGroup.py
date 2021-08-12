@@ -50,7 +50,7 @@ while running:
     player2_col.setImgPos(ply2X, ply2Y)  # important
 
     # print(grp.check())
-    if grp.check():  # checks if there is any collision
+    if grp.check_collision():  # checks if there is any collision
         screen.fill((255, 16, 8))
         screen.blit(coll_font.render("Collision", True, (255, 255, 255)), (50, 50))
 

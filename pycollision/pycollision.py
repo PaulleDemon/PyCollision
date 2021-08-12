@@ -199,15 +199,15 @@ class GroupCollision:
         """ add single collision item """
         self._group.append(colobj)
 
-    def addItems(self, colobjs):
+    def addItems(self, colobjs: List):
         """ add multiple collision items at once"""
         self._group.extend(colobjs)
 
-    def remove(self, colobj: Collision):
+    def removeItem(self, colobj: Collision):
         """ remove single item"""
         self._group.remove(colobj)
 
-    def check(self) -> List:
+    def check_collision(self) -> List:
         return list(list_collision(self._group))
 
 
