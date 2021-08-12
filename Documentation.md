@@ -42,4 +42,6 @@ Pass a list and yields objects that collide.
 
 **smart collision**
 
+First checks if point is inside the outermost red rectangle, then check the inner rectangles 
+
 ![smart collision](https://github.com/PaulleDemon/PyCollision/blob/main/DocumentationImages/SmartCollision.png?raw=True)
