@@ -5,8 +5,8 @@ with open("Readme.md", 'r') as f:
 
 setup(
     name='PyCollision',
-    version='0.0.3',
-    description="This library helps to detect collision more efficiently for image with transparency",
+    version='0.0.1',
+    description="This library helps to detect collision for image with transparency. Useful in game development ",
     license="MIT",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -25,6 +25,6 @@ setup(
     keywords=['Collision', 'pygame', 'python collision', 'Rectangular collision', 'pycollision'],
     packages=["pycollision"],
     include_package_data=True,
-    install_requires=["numpy", "imageio"],
+    install_requires=["numpy", "pillow"],
     python_requires='>=3.5',
 )
