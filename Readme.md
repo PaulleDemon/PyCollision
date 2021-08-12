@@ -59,4 +59,6 @@ save the below sample image in the same directory as the program and give a test
 
 ![Sample Image](https://github.com/PaulleDemon/PyCollision/blob/main/Examples/TestImages/sample.png?raw=True)
 
-Check out more examples [here](https://github.com/PaulleDemon/PyCollision/tree/main/Examples)
+Check out more examples [here](https://github.com/PaulleDemon/PyCollision/tree/main/Examples).
+
+Refer documentation [here](https://github.com/PaulleDemon/PyCollision/blob/main/Documentation.md)
