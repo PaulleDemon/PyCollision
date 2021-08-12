@@ -32,3 +32,4 @@ Pass a list and yields objects that collide.
 ### ImageError:
  This error is raised when image does't contain alpha channel
 
+
