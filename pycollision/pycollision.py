@@ -13,7 +13,7 @@ def _convertImageToArray(image):
 class Collision:
 
     def __init__(self, img_path: str, split: Tuple[int, int] = (1, 1), img_pos: Tuple[int, int] = (0, 0),
-                 optimize=False):
+                 optimize=False, optimize_padding: Tuple[int, int, int, int] = (1, 1, 1, 1)):
 
         if not all(split):
             raise ValueError("Please enter a split values greater than 0")
@@ -27,29 +27,33 @@ class Collision:
         self._collision_points = np.array(list(self.divide(split)), dtype='object')
 
         if _optimize:
-            self._optimize()
+            self._optimize(optimize_padding)
 
         else:
             self._collision_points = np.concatenate(self._collision_points).ravel()
 
         self._collision_points = np.reshape(self._collision_points, (-1, 4))
+        self._collision_points = np.unique(self._collision_points, axis=0)
+        # print(self._collision_points)
+        print(len(self._collision_points))
 
     def setImgPos(self, posx: int, posy: int):
         """ sets image pos useful when the image or the object is moving"""
         self.img_x, self.img_y = posx, posy
 
-    def _optimize(self):
+    def _optimize(self, padding: Tuple[int, int, int, int] = (1, 1, 1, 1)):
         """ removes inner points of the rectangle by checking the points above and below """
-
-        temp = self._collision_points[:1][0].ravel()
-
-        for index in range(1, len(self._collision_points) - 1):
+        left, top, right, bottom = padding
+        # print("TEMP: \n", self._collision_points[:top].shape)
+        temp = np.concatenate(self._collision_points[:top]).ravel()
+        print(temp)
+        for index in range(1, len(self._collision_points) - bottom):
             pre_point = self._collision_points[index - 1]
             cur_point = self._collision_points[index]
             post_point = self._collision_points[index + 1]
 
             point_temp = []
-            for x in cur_point[1: -1]:
+            for x in cur_point[left: -right]:
                 pre_exists = False
                 post_exists = False
 
@@ -66,12 +70,11 @@ class Collision:
                 if not pre_exists or not post_exists:
                     point_temp.append(x)
 
-            # point = np.array(point_temp)
-            point = np.concatenate((cur_point[0], *point_temp, cur_point[-1]))
+            point = np.concatenate((cur_point[:left].ravel(), *point_temp, cur_point[-right:].ravel()))
 
             temp = np.concatenate((temp, point))
 
-        temp = np.concatenate((temp, self._collision_points[-1:][0].ravel()))
+        temp = np.concatenate((temp, self._collision_points[-bottom:][0].ravel()))
         self._collision_points = temp
 
     def divide(self, split: Tuple[int, int] = (1, 1)):
@@ -116,9 +119,10 @@ class Collision:
                         (pos_y <= self._collision_points[:, 3] + self.img_y + offset))
 
         rect = self._collision_points[cond]
-
-        if cond and cond[0].size != 0:
-            return True, rect
+        # print(rect)
+        # if cond and cond[0].size != 0:
+        if np.any(rect):
+            return True, rect[0].tolist()
 
         return False, None
 
@@ -135,18 +139,10 @@ class Collision:
 
         return False, None
 
-    def check_rect_inside(self, rect: Tuple[int, int, int, int], coll_pos: Tuple[int, int] = None, offset=0) -> Tuple:
-
-        if coll_pos is not None:
-            self.setImgPos(*coll_pos)
-
-        check1, pos1 = self.smart_check(rect[:2], offset=offset)
-        check2, pos2 = self.smart_check(rect[2:], offset=offset)
-
-        return check1 or check2, (pos1, pos2)
-
     def check_rect_collision(self, rect: Tuple[int, int, int, int], coll_pos: Tuple[int, int] = None,
                              offset=0) -> Tuple:
+
+        """ checks collision for rectangles pass a tuple returns True and collision rectangle if collision occurs"""
 
         if coll_pos is not None:
             self.setImgPos(*coll_pos)
@@ -162,20 +158,23 @@ class Collision:
 
         pos_x, pos_y, pos_x1, pos_y1 = rect
 
-        cond = np.argmax((self._collision_points[:, 0] + self.img_x - offset >= pos_x) &
+        # checks whether the colliding rectangle
+        cond = np.where((self._collision_points[:, 0] + self.img_x - offset >= pos_x) &
                          (self._collision_points[:, 1] + self.img_y - offset >= pos_y) &
                          (self._collision_points[:, 0] + self.img_x + offset <= pos_x1) &
-                         (self._collision_points[:, 1] + self.img_y + offset <= pos_y1))
+                         (self._collision_points[:, 1] + self.img_y + offset <= pos_y1) |
+                         (self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
+                         (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
+                         (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
+                         (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
 
-        cond2 = np.argmax((self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
-                          (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
-                          (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
-                          (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
+        rect = self._collision_points[cond]
+        pos5 = None
+        if np.any(rect):
+            pos5 = rect[0].tolist()
 
-        # print((check, check2, check3, check4), cond, cond2)
-
-        if any((check, check2, check3, check4)) or np.any(cond) or np.any(cond2):
-            return True, None  # pos or pos2 or pos3 or pos4
+        if any((check, check2, check3, check4)) or np.any(rect):
+            return True, pos or pos2 or pos3 or pos4 or pos5
 
         return False, None
 
