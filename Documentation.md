@@ -32,4 +32,14 @@ Pass a list and yields objects that collide.
 ### ImageError:
  This error is raised when image does't contain alpha channel
 
+**Full collision**
 
+![Full collision](https://github.com/PaulleDemon/PyCollision/blob/main/DocumentationImages/FullCollisionImage.png?raw=True)
+
+**wall collision**
+
+![Wall Collision](https://github.com/PaulleDemon/PyCollision/blob/main/DocumentationImages/WallCollisionImage.png?raw=True)
+
+**smart collision**
+
+![smart collision](https://github.com/PaulleDemon/PyCollision/blob/main/DocumentationImages/SmartCollision.png?raw=True)
