@@ -1,28 +1,37 @@
 import pygame
 import random
-from pycollision import Collision
+from pycollision import Collision, list_collision
+
+# use W, A, S, D to move player 1 and arrow keys to move player1
 
 pygame.init()
 
 screen = pygame.display.set_mode((1000, 800))
 
-player = pygame.image.load(r"TestImages/playerTank.png").convert()  # _alpha()
+player = pygame.image.load(r"TestImages/playerTank.png").convert_alpha()
 player_rect = player.get_rect()
 
+player2 = pygame.image.load(r"TestImages/playerTank.png").convert_alpha()
+player_rect2 = player.get_rect()
 
-collision_check = Collision(r"TestImages/sample.png", (15, 15), optimize=True)
-collision_object = pygame.image.load(r"TestImages/sample.png").convert_alpha()
+player1_col = Collision(r"TestImages/playerTank.png", (5, 5))
+player2_col = Collision(r"TestImages/playerTank.png", (10, 10), optimize=True)
 
-colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
-          range(len(collision_check.collision_points()))]
+colors1 = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
+           range(len(player1_col.collision_points()))]
+
+colors2 = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
+           range(len(player2_col.collision_points()))]
 
 running = True
-speed = 1.5
+speed = 0.3
 pos_x, pos_y = (10, 10)
 
 ply2X, ply2Y = (0, 0)
 
 offset = 0
+
+coll_font = pygame.font.SysFont('Consolas', 50)
 
 while running:
 
@@ -33,44 +42,48 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    player1_col.setImgPos(pos_x, pos_y)  # important
+    player2_col.setImgPos(ply2X, ply2Y)  # important
+
+    if list_collision([player1_col, player2_col]):
+        screen.fill((255, 16, 8))
+        screen.blit(coll_font.render("Collision", True, (255, 255, 255)), (50, 50))
+
     key_press = pygame.key.get_pressed()
 
-    topLeft, _ = collision_check.smart_check((pos_x, pos_y), offset=offset)
-    topRight, _ = collision_check.smart_check((pos_x + player_rect.width, pos_y),offset=offset)
-    bottomRight, _ = collision_check.smart_check((pos_x + player_rect.width, pos_y + player_rect.height), offset=offset)
-    bottomLeft, _ = collision_check.smart_check((pos_x, pos_y + player_rect.height), offset=offset)
-
-    if key_press[pygame.K_a]:
+    if key_press[pygame.K_a] and pos_x >= 0:
         pos_x -= speed
 
-    if key_press[pygame.K_w]:
+    if key_press[pygame.K_w] and pos_y >= 0:
         pos_y -= speed
 
-    if key_press[pygame.K_d]:
+    if key_press[pygame.K_d] and pos_x <= 950:
         pos_x += speed
 
-    if key_press[pygame.K_s]:
+    if key_press[pygame.K_s] and pos_y <= 750:
         pos_y += speed
 
-    if key_press[pygame.K_LEFT]:
+    if key_press[pygame.K_LEFT] and ply2X >= 0:
         ply2X -= speed
 
-    if key_press[pygame.K_UP]:
+    if key_press[pygame.K_UP] and ply2Y >= 0:
         ply2Y -= speed
 
-    if key_press[pygame.K_RIGHT]:
+    if key_press[pygame.K_RIGHT] and ply2X <= 950:
         ply2X += speed
 
-    if key_press[pygame.K_DOWN]:
+    if key_press[pygame.K_DOWN] and ply2Y <= 750:
         ply2Y += speed
 
-    screen.blit(collision_object, (0, 0))
-    player2 = pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(ply2X, ply2Y, 50, 50))
+    screen.blit(player, (pos_x, pos_y))
+    screen.blit(player2, (ply2X, ply2Y))
 
-    for color, x in zip(colors, collision_check.collision_points()):  # remove this to remove the colourful rectangles
-        x = (x[0], x[1], x[2] - x[0], x[3] - x[1])
+    for color, x in zip(colors1, player1_col.collision_points()):
+        x = (x[0]+pos_x, x[1]+pos_y, x[2] - x[0], x[3] - x[1])
         pygame.draw.rect(screen, color, pygame.Rect(x), width=3)
 
-    screen.blit(player, (pos_x, pos_y))
+    for color, x in zip(colors2, player2_col.collision_points()):
+        x = (x[0]+ply2X, x[1]+ply2Y, x[2] - x[0], x[3] - x[1])
+        pygame.draw.rect(screen, color, pygame.Rect(x), width=3)
 
     pygame.display.update()

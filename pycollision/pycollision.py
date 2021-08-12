@@ -33,9 +33,9 @@ class Collision:
             self._collision_points = np.concatenate(self._collision_points).ravel()
 
         self._collision_points = np.reshape(self._collision_points, (-1, 4))
-        self._collision_points = np.unique(self._collision_points, axis=0)
-        # print(self._collision_points)
-        print(len(self._collision_points))
+
+        if self._collision_points.shape[0] > 1:
+            self._collision_points = np.unique(self._collision_points, axis=0)
 
     def setImgPos(self, posx: int, posy: int):
         """ sets image pos useful when the image or the object is moving"""
@@ -44,9 +44,9 @@ class Collision:
     def _optimize(self, padding: Tuple[int, int, int, int] = (1, 1, 1, 1)):
         """ removes inner points of the rectangle by checking the points above and below """
         left, top, right, bottom = padding
-        # print("TEMP: \n", self._collision_points[:top].shape)
+
         temp = np.concatenate(self._collision_points[:top]).ravel()
-        print(temp)
+
         for index in range(1, len(self._collision_points) - bottom):
             pre_point = self._collision_points[index - 1]
             cur_point = self._collision_points[index]
@@ -119,8 +119,7 @@ class Collision:
                         (pos_y <= self._collision_points[:, 3] + self.img_y + offset))
 
         rect = self._collision_points[cond]
-        # print(rect)
-        # if cond and cond[0].size != 0:
+
         if np.any(rect):
             return True, rect[0].tolist()
 
@@ -143,11 +142,11 @@ class Collision:
                              offset=0) -> Tuple:
 
         """ checks collision for rectangles pass a tuple returns True and collision rectangle if collision occurs"""
-
         if coll_pos is not None:
             self.setImgPos(*coll_pos)
 
         rect = list(rect)
+        # print("IMage Value: ", self.img_x, self.img_y, rect)
         topLeft, bottomRight = rect[:2], rect[2:]
         topRight, bottomLeft = (rect[2], rect[1]), (rect[0], rect[3])
 
@@ -170,6 +169,7 @@ class Collision:
 
         rect = self._collision_points[cond]
         pos5 = None
+        # print(self._collision_points[:, 0] + self.img_x - offset)
         if np.any(rect):
             pos5 = rect[0].tolist()
 
@@ -200,10 +200,28 @@ class GroupCollision:
         for obj_ind in range(0, len(self._group)):
             for check_ind in range(obj_ind, len(self._group)):
                 for rect in self._group[check_ind].collision_points():
-                    check, pos, check2, pos2 = self._group[obj_ind].check_rect(rect)
+                    check, rect = self._group[obj_ind].check_rect(rect)
 
-                    if any((check, check2)):
-                        coll_points = (pos, pos2)
+                    if check:
+
                         coll_objs.append((self._group[obj_ind], self._group[check_ind], coll_points))
 
         return coll_objs
+
+
+def list_collision(coll_objs: List) -> List:
+    """ returns list of tuple containing the collision-objects and the collision rectangle"""
+
+    col = list()
+
+    for obj_ind in range(0, len(coll_objs)-1):
+        for check_ind in range(obj_ind+1, len(coll_objs)):
+            x, y = coll_objs[check_ind].img_x, coll_objs[check_ind].img_y
+            for rect in coll_objs[check_ind].collision_points():
+                check, rect_points = coll_objs[obj_ind].check_rect_collision(rect + [x, y, x, y])
+
+                if check:
+                    col.append((coll_objs[obj_ind], coll_objs[check_ind], rect_points))
+                    break
+
+    return col
