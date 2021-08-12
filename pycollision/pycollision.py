@@ -1,6 +1,10 @@
 import numpy as np
 from PIL import Image
-from typing import Tuple, List
+from typing import Tuple, List ,Generator
+
+
+class ImageError(Exception):
+    pass
 
 
 def _convertImageToArray(image):
@@ -22,6 +26,11 @@ class Collision:
 
         _optimize = optimize
         self.image = _convertImageToArray(img_path)
+        print(self.image.shape)
+
+        if self.image.shape[2] != 4:
+            raise ImageError("Image doesn't have alpha channel")
+
         self.height, self.width, *_ = self.image.shape
 
         self._collision_points = np.array(list(self.divide(split)), dtype='object')
@@ -34,7 +43,8 @@ class Collision:
 
         self._collision_points = np.reshape(self._collision_points, (-1, 4))
 
-        if self._collision_points.shape[0] > 1:
+        print(self._collision_points.shape, self._collision_points.dtype)
+        if self._collision_points.shape[0] > 1 and self._collision_points.dtype != "object":
             self._collision_points = np.unique(self._collision_points, axis=0)
 
     def setImgPos(self, posx: int, posy: int):
@@ -146,7 +156,6 @@ class Collision:
             self.setImgPos(*coll_pos)
 
         rect = list(rect)
-        # print("IMage Value: ", self.img_x, self.img_y, rect)
         topLeft, bottomRight = rect[:2], rect[2:]
         topRight, bottomLeft = (rect[2], rect[1]), (rect[0], rect[3])
 
@@ -169,7 +178,7 @@ class Collision:
 
         rect = self._collision_points[cond]
         pos5 = None
-        # print(self._collision_points[:, 0] + self.img_x - offset)
+
         if np.any(rect):
             pos5 = rect[0].tolist()
 
@@ -188,31 +197,24 @@ class GroupCollision:
     def __init__(self):
         self._group = list()
 
-    def add(self, colobj: Collision):
+    def addItem(self, colobj: Collision):
+        """ add single collision item """
         self._group.append(colobj)
 
+    def addItems(self, colobjs):
+        """ add multiple collision items at once"""
+        self._group.extend(colobjs)
+
     def remove(self, colobj: Collision):
+        """ remove single item"""
         self._group.remove(colobj)
 
-    def check(self) -> List[Tuple]:
-        coll_objs = list()
-
-        for obj_ind in range(0, len(self._group)):
-            for check_ind in range(obj_ind, len(self._group)):
-                for rect in self._group[check_ind].collision_points():
-                    check, rect = self._group[obj_ind].check_rect(rect)
-
-                    if check:
-
-                        coll_objs.append((self._group[obj_ind], self._group[check_ind], coll_points))
-
-        return coll_objs
+    def check(self) -> List:
+        return list(list_collision(self._group))
 
 
-def list_collision(coll_objs: List) -> List:
-    """ returns list of tuple containing the collision-objects and the collision rectangle"""
-
-    col = list()
+def list_collision(coll_objs: List) -> Generator[Collision, Collision, List]:
+    """ returns generator containing the collision-objects and the collision rectangle"""
 
     for obj_ind in range(0, len(coll_objs)-1):
         for check_ind in range(obj_ind+1, len(coll_objs)):
@@ -221,7 +223,5 @@ def list_collision(coll_objs: List) -> List:
                 check, rect_points = coll_objs[obj_ind].check_rect_collision(rect + [x, y, x, y])
 
                 if check:
-                    col.append((coll_objs[obj_ind], coll_objs[check_ind], rect_points))
+                    yield coll_objs[obj_ind], coll_objs[check_ind], rect_points
                     break
-
-    return col

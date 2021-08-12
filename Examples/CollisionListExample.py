@@ -45,7 +45,8 @@ while running:
     player1_col.setImgPos(pos_x, pos_y)  # important
     player2_col.setImgPos(ply2X, ply2Y)  # important
 
-    if list_collision([player1_col, player2_col]):
+    # print(list_collision([player1_col, player2_col]))
+    if list(list_collision([player1_col, player2_col])):
         screen.fill((255, 16, 8))
         screen.blit(coll_font.render("Collision", True, (255, 255, 255)), (50, 50))
 
