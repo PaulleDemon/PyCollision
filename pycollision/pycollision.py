@@ -18,7 +18,20 @@ class Collision:
 
     def __init__(self, img_path: str, split: Tuple[int, int] = (1, 1), img_pos: Tuple[int, int] = (0, 0),
                  optimize=False, optimize_padding: Tuple[int, int, int, int] = (1, 1, 1, 1)):
+        """
 
+        :param img_path: str
+                Pass the image path
+        :param split: (int, int)
+                pass tuple of rows and columns greater than 0, default (1, 1)
+        :param img_pos: (int, int)
+                pass the current position of the image default 0, 0
+        :param optimize: bool
+                set this to True if you only want wall collision
+        :param optimize_padding: (int, int, int, int)
+                sometimes optimize might leave some spaces, specify format: (left, top, right, bottom)
+
+        """
         if not all(split):
             raise ValueError("Please enter a split values greater than 0")
 
