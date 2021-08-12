@@ -1,17 +1,10 @@
 import numpy as np
-from PIL import Image
+import imageio
 from typing import Tuple, List, Generator
 
 
 class ImageError(Exception):
     pass
-
-
-def _convertImageToArray(image):
-    img = Image.open(image)
-    img.load()
-
-    return np.asarray(img)
 
 
 class Collision:
@@ -38,7 +31,7 @@ class Collision:
         self.img_x, self.img_y = img_pos
 
         _optimize = optimize
-        self.image = _convertImageToArray(img_path)
+        self.image = imageio.imread(img_path)
 
         if self.image.shape[2] != 4:
             raise ImageError("Image doesn't have alpha channel")
