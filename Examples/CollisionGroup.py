@@ -2,6 +2,7 @@ import pygame
 import random
 from pycollision import Collision, GroupCollision
 
+# note: Download the TestImages or choose your own images
 # use W, A, S, D to move player 1 and arrow keys to move player1
 
 pygame.init()

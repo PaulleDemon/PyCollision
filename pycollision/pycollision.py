@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from typing import Tuple, List ,Generator
+from typing import Tuple, List, Generator
 
 
 class ImageError(Exception):
@@ -26,7 +26,6 @@ class Collision:
 
         _optimize = optimize
         self.image = _convertImageToArray(img_path)
-        print(self.image.shape)
 
         if self.image.shape[2] != 4:
             raise ImageError("Image doesn't have alpha channel")
@@ -43,7 +42,6 @@ class Collision:
 
         self._collision_points = np.reshape(self._collision_points, (-1, 4))
 
-        print(self._collision_points.shape, self._collision_points.dtype)
         if self._collision_points.shape[0] > 1 and self._collision_points.dtype != "object":
             self._collision_points = np.unique(self._collision_points, axis=0)
 
@@ -168,13 +166,13 @@ class Collision:
 
         # checks whether the colliding rectangle
         cond = np.where((self._collision_points[:, 0] + self.img_x - offset >= pos_x) &
-                         (self._collision_points[:, 1] + self.img_y - offset >= pos_y) &
-                         (self._collision_points[:, 0] + self.img_x + offset <= pos_x1) &
-                         (self._collision_points[:, 1] + self.img_y + offset <= pos_y1) |
-                         (self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
-                         (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
-                         (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
-                         (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
+                        (self._collision_points[:, 1] + self.img_y - offset >= pos_y) &
+                        (self._collision_points[:, 0] + self.img_x + offset <= pos_x1) &
+                        (self._collision_points[:, 1] + self.img_y + offset <= pos_y1) |
+                        (self._collision_points[:, 2] + self.img_x - offset >= pos_x) &
+                        (self._collision_points[:, 3] + self.img_y - offset >= pos_y) &
+                        (self._collision_points[:, 2] + self.img_x + offset <= pos_x1) &
+                        (self._collision_points[:, 3] + self.img_y + offset <= pos_y1))
 
         rect = self._collision_points[cond]
         pos5 = None
@@ -216,8 +214,8 @@ class GroupCollision:
 def list_collision(coll_objs: List) -> Generator[Collision, Collision, List]:
     """ returns generator containing the collision-objects and the collision rectangle"""
 
-    for obj_ind in range(0, len(coll_objs)-1):
-        for check_ind in range(obj_ind+1, len(coll_objs)):
+    for obj_ind in range(0, len(coll_objs) - 1):
+        for check_ind in range(obj_ind + 1, len(coll_objs)):
             x, y = coll_objs[check_ind].img_x, coll_objs[check_ind].img_y
             for rect in coll_objs[check_ind].collision_points():
                 check, rect_points = coll_objs[obj_ind].check_rect_collision(rect + [x, y, x, y])

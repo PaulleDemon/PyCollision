@@ -19,9 +19,6 @@ running = True
 speed = 0.3
 pos_x, pos_y = (10, 10)
 
-
-offset = 0
-
 coll_font = pygame.font.SysFont('Consolas', 50)
 
 while running:
