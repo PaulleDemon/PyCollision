@@ -16,7 +16,7 @@ player2 = pygame.image.load(r"TestImages/playerTank.png").convert_alpha()
 player_rect2 = player.get_rect()
 
 player1_col = Collision(r"TestImages/playerTank.png", (5, 5))
-player2_col = Collision(r"TestImages/playerTank.png", (10, 10), optimize=True)
+player2_col = Collision(r"TestImages/playerTank.png", (10, 10), wall_collision=True)
 
 grp = GroupCollision()
 grp.addItems([player1_col, player2_col])
@@ -46,8 +46,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    player1_col.setImgPos(pos_x, pos_y)  # important
-    player2_col.setImgPos(ply2X, ply2Y)  # important
+    player1_col.setSpritePos(pos_x, pos_y)  # important
+    player2_col.setSpritePos(ply2X, ply2Y)  # important
 
     # print(grp.check())
     if grp.check_collision():  # checks if there is any collision

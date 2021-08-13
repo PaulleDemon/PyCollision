@@ -15,7 +15,7 @@ player2 = pygame.image.load(r"TestImages/playerTank.png").convert_alpha()
 player_rect2 = player.get_rect()
 
 player1_col = Collision(r"TestImages/playerTank.png", (5, 5))
-player2_col = Collision(r"TestImages/playerTank.png", (10, 10), optimize=True)
+player2_col = Collision(r"TestImages/playerTank.png", (10, 10), wall_collision=True)
 
 colors1 = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
            range(len(player1_col.collision_points()))]
@@ -42,8 +42,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    player1_col.setImgPos(pos_x, pos_y)  # important
-    player2_col.setImgPos(ply2X, ply2Y)  # important
+    player1_col.setSpritePos(pos_x, pos_y)  # important
+    player2_col.setSpritePos(ply2X, ply2Y)  # important
 
     # print(list_collision([player1_col, player2_col]))
     if list(list_collision([player1_col, player2_col])):

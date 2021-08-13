@@ -9,7 +9,7 @@ screen = pygame.display.set_mode((1000, 800))
 
 player_rect = pygame.Rect(0, 0, 50, 50)
 
-collision_check = Collision(r"TestImages/sample.png", (50, 50), optimize=True)
+collision_check = Collision(r"TestImages/sample.png", (50, 50), wall_collision=True)
 collision_object = pygame.image.load(r"TestImages/sample.png").convert_alpha()
 
 colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in

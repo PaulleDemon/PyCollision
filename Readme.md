@@ -14,7 +14,7 @@ screen = pygame.display.set_mode((1000, 800))
 
 player_rect = pygame.Rect(0, 0, 50, 50)
 
-collision_check = Collision(r"sample.png", (15, 15), optimize=False)
+collision_check = Collision(r"sample.png", (15, 15), wall_collision=False) # set wall collision to True if you want to check the collision only at the walls, this will be much faster
 collision_object = pygame.image.load(r"sample.png").convert_alpha()
 
 colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
@@ -37,9 +37,9 @@ while running:
 
     pos_x, pos_y = pygame.mouse.get_pos()
 
-    colliding, pos = collision_check.smart_check((pos_x, pos_y)) # collision_check.smart_check(player_rect)
+    colliding, pos = collision_check.smart_check((pos_x, pos_y)) # checks if the point is first inside the outer rectangle then checks if it is inside the image
     # rect = (player_rect.x, player_rect.y, player_rect.x+player_rect.width, player_rect.height+player_rect.y)
-    # colliding, pos = collision_check.check_rect_collision(rect)
+    # colliding, pos = collision_check.rect_collide(rect)
     if colliding:
         screen.fill((255, 16, 8))
         screen.blit(coll_font.render("Collision", True, (255, 255, 255)), (50, 50))

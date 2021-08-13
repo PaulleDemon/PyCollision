@@ -9,7 +9,8 @@ screen = pygame.display.set_mode((1000, 800))
 
 player_rect = pygame.Rect(0, 0, 50, 50)
 
-collision_check = Collision(r"TestImages/sample.png", (20, 50), optimize=True, optimize_padding=(3, 1, 1, 1)) # optimize_padding(left, top, right, bottom)
+collision_check = Collision(r"TestImages/sample.png", (20, 50), wall_collision=True,
+                            wall_padding=(3, 1, 1, 1))  # optimize_padding(left, top, right, bottom)
 collision_object = pygame.image.load(r"TestImages/sample.png").convert_alpha()
 
 colors = [(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for x in
@@ -33,7 +34,7 @@ while running:
     key_press = pygame.key.get_pressed()
 
     rect = (player_rect.x, player_rect.y, player_rect.x+player_rect.width, player_rect.y+player_rect.height)
-    inside, pos = collision_check.check_rect_collision(rect)
+    inside, pos = collision_check.rect_collide(rect)
 
     if inside:
         screen.fill((255, 16, 8))
