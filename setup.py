@@ -5,8 +5,8 @@ with open("Readme.md", 'r') as f:
 
 setup(
     name='PyCollision',
-    version='0.0.1',
-    description="This library helps to detect collision for image with transparency. Useful in game development ",
+    version='0.0.2',
+    description="This library helps to detect collision for image with transparency. Useful for game development ",
     license="MIT",
     long_description=long_description,
     long_description_content_type="text/markdown",
