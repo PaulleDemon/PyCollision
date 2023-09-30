@@ -57,13 +57,14 @@ while running:
 ```
 save the below sample image in the same directory as the program and give a test run.
 
-If you are using for research purposes, Cite this using the following:
-```
-P. Sajo, G. R and M. B.N, "Controlling the Accuracy and Efficiency of Collision Detection in 2d Games using Hitboxes," 2023 IEEE International Conference on Contemporary Computing and Communications (InC4), Bangalore, India, 2023, pp. 1-5, doi: 10.1109/InC457730.2023.10263197.
-```
-
 ![Sample Image](https://github.com/PaulleDemon/PyCollision/blob/main/Examples/TestImages/sample.png?raw=True)
 
 Check out more examples [here](https://github.com/PaulleDemon/PyCollision/tree/main/Examples).
 
 Refer documentation [here](https://github.com/PaulleDemon/PyCollision/blob/main/Documentation.md)
+
+
+If you are using for research purposes, Cite this using the following:
+```
+P. Sajo, G. R and M. B.N, "Controlling the Accuracy and Efficiency of Collision Detection in 2d Games using Hitboxes," 2023 IEEE International Conference on Contemporary Computing and Communications (InC4), Bangalore, India, 2023, pp. 1-5, doi: 10.1109/InC457730.2023.10263197.
+```
