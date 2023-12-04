@@ -61,7 +61,7 @@ save the below sample image in the same directory as the program and give a test
 
 Check out more examples [here](https://github.com/PaulleDemon/PyCollision/tree/main/Examples).
 
-Refer documentation [here](https://github.com/PaulleDemon/PyCollision/blob/main/Documentation.md)
+Refer documentation [here](https://browsedocs.com/LBImCEvuwGje)
 
 
 If you are using for research purposes, Cite this using the following:
