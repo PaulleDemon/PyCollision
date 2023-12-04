@@ -1,0 +1,17 @@
+{
+    "version": "0.0.2",
+    "unique_name": "pycollision",
+    "project_name": "PyCollision",
+    "about": "This is a simple collision detection library",
+    "source": "Documentation.md",    
+    "source_code": "https://github.com/PaulleDemon/PyCollision",
+    "doc_type": "pgm-lng",
+    "additional_links": {
+        "Examples": "https://github.com/PaulleDemon/PyCollision/tree/main/Examples"
+    },
+    "tags": "python, tkinter, tktimepicker",
+    "sponsor": {
+        "github": "PaulleDemon",
+        "buymeacoffee": "artpaul"
+    }
+}
