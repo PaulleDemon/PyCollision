@@ -64,7 +64,3 @@ Check out more examples [here](https://github.com/PaulleDemon/PyCollision/tree/m
 Refer documentation [here](https://browsedocs.com/LBImCEvuwGje)
 
 
-If you are using for research purposes, Cite this using the following:
-```
-P. Sajo, G. R and M. B.N, "Controlling the Accuracy and Efficiency of Collision Detection in 2d Games using Hitboxes," 2023 IEEE International Conference on Contemporary Computing and Communications (InC4), Bangalore, India, 2023, pp. 1-5, doi: 10.1109/InC457730.2023.10263197.
-```
